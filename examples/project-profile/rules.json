@@ -1,0 +1,11 @@
+[
+  {
+    "rule": "ID-001",
+    "severity": "major",
+    "category": "typed-ids",
+    "title": "Raw Long used as an id in a collection signature",
+    "scope": "java_prod_or_test",
+    "guidance": "Example of a project rule: this project wants typed id records instead of raw longs in new signatures. Only add a rule like this when it is a verified convention that no build or test already enforces.",
+    "pattern": "\\b(?:Set|List|Collection|Iterable)<\\s*Long\\s*>|\\bMap<\\s*Long\\s*,"
+  }
+]

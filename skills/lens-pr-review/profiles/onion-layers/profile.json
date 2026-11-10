@@ -1,0 +1,76 @@
+{
+  "name": "onion-layers",
+  "extends": "generic",
+  "description": "Opt-in add-on for repos with domain/application/infrastructure/api packages (Onion / DDD).",
+  "scopes": {
+    "domain": {
+      "include": [
+        "^(?=(?:.*/)?domain/)(?:.*/)?src/main/java/.*\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    },
+    "application": {
+      "include": [
+        "^(?=(?:.*/)?application/)(?:.*/)?src/main/java/.*\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    },
+    "api": {
+      "include": [
+        "^(?=(?:.*/)?api/)(?:.*/)?src/main/java/.*\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    },
+    "outside_application": {
+      "include": [
+        "(^|/)src/main/java/.*\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$",
+        "^(?=(?:.*/)?application/)"
+      ]
+    }
+  },
+  "domain_logic_pattern": "\\b(if|for|while|switch|throw|catch|return\\s+\\w+\\s*[-+*/<>=!&|?])\\b|->|\\.(map|flatMap|filter|reduce|collect|anyMatch|allMatch)\\(",
+  "path_signals": [
+    {
+      "id": "domain-model",
+      "priority": 35,
+      "reason": "Domain model",
+      "tier": "MEDIUM",
+      "path": "/src/main/java/.*/domain/"
+    },
+    {
+      "id": "application-layer",
+      "priority": 36,
+      "reason": "Application orchestration",
+      "tier": "MEDIUM",
+      "path": "/src/main/java/.*/application/"
+    },
+    {
+      "id": "api-layer",
+      "priority": 36,
+      "reason": "REST adapter",
+      "tier": "MEDIUM",
+      "path": "/src/main/java/.*/api/"
+    },
+    {
+      "id": "infra-layer",
+      "priority": 36,
+      "reason": "Infrastructure adapter",
+      "tier": "MEDIUM",
+      "path": "/src/main/java/.*/infrastructure/"
+    }
+  ],
+  "lenses": {
+    "enable": [
+      "design-principles"
+    ]
+  }
+}

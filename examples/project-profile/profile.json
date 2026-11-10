@@ -1,0 +1,61 @@
+{
+  "name": "project-profile",
+  "description": "Template for a project profile. Copy this folder to .lens-pr-review/ in your repository (or to profiles/<name>/ here) and edit it.",
+  "extends": "generic",
+  "detect": {
+    "any_path_exists": [
+      ".example-project-marker"
+    ]
+  },
+  "base_ref_candidates": [
+    "origin/main",
+    "origin/master"
+  ],
+  "convention_files": [
+    "AGENTS.md"
+  ],
+  "builtin_checks": {
+    "tests-missing-in-module": {
+      "min_lines": 10,
+      "severity": "major",
+      "exclude_module_regex": "-shared$"
+    }
+  },
+  "scopes": {
+    "java_prod_or_test": {
+      "include": [
+        "\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|generated)/"
+      ]
+    }
+  },
+  "path_signals": [
+    {
+      "id": "templates",
+      "priority": 38,
+      "reason": "Server-rendered template",
+      "tier": "MEDIUM",
+      "path": "src/main/webapp/.*\\.(jsp|tag)$"
+    }
+  ],
+  "line_signals": [
+    {
+      "id": "serialized",
+      "priority": 15,
+      "reason": "Serialized state shared during a rolling deploy",
+      "tier": "HIGH",
+      "signal": "contract",
+      "line": "serialVersionUID"
+    },
+    {
+      "id": "money",
+      "priority": 30,
+      "reason": "Money / units formatting",
+      "tier": "MEDIUM",
+      "signal": "data-semantics",
+      "line": "\\b(CurrencyValue\\w*|formatCost\\w*)\\b"
+    }
+  ]
+}

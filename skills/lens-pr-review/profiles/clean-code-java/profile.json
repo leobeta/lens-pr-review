@@ -1,0 +1,10 @@
+{
+  "name": "clean-code-java",
+  "extends": "generic",
+  "description": "Opt-in add-on: null safety, abstraction over branching, constructor injection. The values of the original pr-review skill. Opinionated: only extend it if the team agrees with them.",
+  "lenses": {
+    "enable": [
+      "design-principles"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "rule": "LAYER-001",
+    "severity": "blocker",
+    "category": "onion",
+    "title": "Domain depends on an outer layer",
+    "scope": "domain",
+    "guidance": "The domain must not import application, infrastructure or api. Invert the dependency with a domain port.",
+    "pattern": "^import\\s+(?:static\\s+)?[\\w.]*\\.(?:application|infrastructure|api)\\."
+  },
+  {
+    "rule": "LAYER-002",
+    "severity": "major",
+    "category": "onion",
+    "title": "Domain depends on a framework / infrastructure technology",
+    "scope": "domain",
+    "guidance": "Keep the domain free of persistence, messaging, HTTP and cloud SDKs.",
+    "pattern": "^import\\s+(?:static\\s+)?(org\\.springframework\\.(?!util\\.|stereotype\\.)|jakarta\\.persistence\\.|javax\\.persistence\\.|org\\.bson\\.|com\\.mongodb\\.|com\\.google\\.cloud\\.|com\\.rabbitmq\\.|org\\.springframework\\.amqp\\.|org\\.apache\\.http|okhttp3\\.|feign\\.|software\\.amazon\\.)"
+  },
+  {
+    "rule": "LAYER-003",
+    "severity": "major",
+    "category": "onion",
+    "title": "Application layer depends on infrastructure",
+    "scope": "application",
+    "guidance": "Application services orchestrate through domain ports, never concrete adapters.",
+    "pattern": "^import\\s+(?:static\\s+)?[\\w.]*\\.infrastructure\\."
+  },
+  {
+    "rule": "LAYER-004",
+    "severity": "major",
+    "category": "onion",
+    "title": "Application layer uses a repository port directly",
+    "scope": "application",
+    "guidance": "Go through a domain service that encapsulates the lookup or persistence.",
+    "pattern": "^import\\s+[\\w.]+\\.\\w*Repository\\s*;"
+  },
+  {
+    "rule": "LAYER-005",
+    "severity": "major",
+    "category": "onion",
+    "title": "API layer bypasses the application layer",
+    "scope": "api",
+    "guidance": "Controllers should delegate to application services.",
+    "pattern": "^import\\s+(?:static\\s+)?[\\w.]*\\.infrastructure\\.|^import\\s+[\\w.]+\\.\\w*Repository\\s*;"
+  },
+  {
+    "rule": "LAYER-006",
+    "severity": "minor",
+    "category": "onion",
+    "title": "@Transactional outside the application layer",
+    "scope": "outside_application",
+    "guidance": "Put @Transactional on application-service methods only.",
+    "pattern": "@Transactional\\b"
+  }
+]

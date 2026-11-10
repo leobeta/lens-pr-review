@@ -1,0 +1,251 @@
+{
+  "name": "generic",
+  "description": "Language-light starting point for any repository: security, reliability, tests, risk triage. No team conventions.",
+  "base_ref_candidates": [
+    "origin/main",
+    "origin/master"
+  ],
+  "module_marker": "/src/",
+  "convention_files": [
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    ".github/copilot-instructions.md"
+  ],
+  "scopes": {
+    "all": {
+      "include": [
+        ".*"
+      ]
+    },
+    "text": {
+      "include": [
+        ".*"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$",
+        "\\.(png|jpe?g|gif|ico|jar|zip|gz|pdf|xlsx?|class)$"
+      ]
+    },
+    "secret_scope": {
+      "include": [
+        ".*"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$",
+        "\\.(png|jpe?g|gif|ico|jar|zip|gz|pdf|xlsx?|class)$",
+        "(^|/)src/test/",
+        "^(docs|samples?|testdata)/",
+        "\\.md$"
+      ]
+    },
+    "java": {
+      "include": [
+        "\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    },
+    "java_main": {
+      "include": [
+        "(^|/)src/main/java/.*\\.java$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    },
+    "config": {
+      "include": [
+        "\\.(ya?ml|properties)$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    },
+    "production": {
+      "include": [
+        "\\.(java|kt|scala|groovy|py|go|rb|cs|tsx?|jsx?)$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$",
+        "(^|/)src/test/",
+        "(^|/)(tests?|__tests__|e2e|integration-tests)/",
+        "\\.(test|spec)\\.[jt]sx?$",
+        "_test\\.(py|go)$"
+      ]
+    },
+    "test": {
+      "include": [
+        "(^|/)src/test/",
+        "(^|/)(tests?|__tests__|e2e|integration-tests)/",
+        "\\.(test|spec)\\.[jt]sx?$",
+        "_test\\.(py|go)$"
+      ],
+      "exclude": [
+        "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+      ]
+    }
+  },
+  "builtin_checks": {
+    "tests-missing-in-module": {
+      "min_lines": 10,
+      "severity": "major"
+    },
+    "new-class-without-test": {
+      "severity": "minor"
+    },
+    "test-deleted": {
+      "severity": "major"
+    }
+  },
+  "path_signals": [
+    {
+      "id": "generated",
+      "priority": 0,
+      "reason": "Generated / lock file",
+      "tier": "SKIP",
+      "path": "(^|/)(target|build|dist|out|node_modules|generated|generated-sources)/|(^|/)(pnpm-lock\\.yaml|package-lock\\.json|yarn\\.lock)$"
+    },
+    {
+      "id": "contract",
+      "priority": 10,
+      "reason": "Public contract / event schema",
+      "tier": "HIGH",
+      "signal": "contract",
+      "path": "(^|/)(api|openapi|schemas?)/.*\\.(ya?ml|json)$|asyncapi|openapi"
+    },
+    {
+      "id": "prod-deploy",
+      "priority": 10,
+      "reason": "Production deployment / CI",
+      "tier": "HIGH",
+      "signal": "prod-deploy",
+      "path": "helm-prod\\.ya?ml$|application-prod\\.ya?ml$|(^|/)Dockerfile$|^\\.github/workflows/|^deploy/"
+    },
+    {
+      "id": "build-deps",
+      "priority": 20,
+      "reason": "Build / dependencies",
+      "tier": "MEDIUM",
+      "signal": "dependencies",
+      "path": "(^|/)(pom\\.xml|package\\.json|build\\.gradle(\\.kts)?|requirements\\.txt|go\\.mod)$"
+    },
+    {
+      "id": "guard-rail-test",
+      "priority": 25,
+      "reason": "Guard-rail test changed (a boundary may have been relaxed)",
+      "tier": "MEDIUM",
+      "signal": "guard-rail",
+      "path": "/src/test/.*(Confinement|Architecture|Arch|Security|Escape|Contract)\\w*Test\\.java$"
+    },
+    {
+      "id": "runtime-config",
+      "priority": 30,
+      "reason": "Runtime configuration",
+      "tier": "MEDIUM",
+      "path": "/src/main/resources/.*\\.(ya?ml|properties)$|helm-dev\\.ya?ml$|docker-compose"
+    },
+    {
+      "id": "production-code",
+      "priority": 40,
+      "reason": "Production code",
+      "tier": "MEDIUM",
+      "path": "(^|/)src/main/|\\.(py|go|rb|cs|tsx?|jsx?)$"
+    },
+    {
+      "id": "tests",
+      "priority": 60,
+      "reason": "Tests",
+      "tier": "LOW",
+      "path": "/src/test/|(^|/)(e2e|integration-tests)/"
+    },
+    {
+      "id": "docs",
+      "priority": 70,
+      "reason": "Documentation",
+      "tier": "LOW",
+      "path": "\\.md$|^docs/|\\.txt$"
+    },
+    {
+      "id": "fixtures",
+      "priority": 70,
+      "reason": "Sample data / fixtures",
+      "tier": "LOW",
+      "path": "^(samples?|testdata)/|/fixtures?/|\\.csv$"
+    }
+  ],
+  "line_signals": [
+    {
+      "id": "security",
+      "priority": 10,
+      "reason": "Security-sensitive",
+      "tier": "HIGH",
+      "signal": "security",
+      "line": "(?i)\\b(password|secret|credential|token|encrypt|decrypt|cipher|signature|hmac|authori[sz]|authenticat|permission)\\w*"
+    },
+    {
+      "id": "expression-eval",
+      "priority": 10,
+      "reason": "Expression evaluation (sandbox boundary)",
+      "tier": "HIGH",
+      "signal": "security",
+      "line": "\\b(Spel\\w*|EvaluationContext|ExpressionParser|MethodResolver|PropertyAccessor)\\b"
+    },
+    {
+      "id": "concurrency",
+      "priority": 20,
+      "reason": "Concurrency",
+      "tier": "HIGH",
+      "signal": "concurrency",
+      "line": "\\b(synchronized|volatile|CompletableFuture|ExecutorService|Executors\\.|@Async|@Scheduled|ReentrantLock|Semaphore|Atomic[A-Z]\\w*|Thread\\.)"
+    },
+    {
+      "id": "persistence",
+      "priority": 20,
+      "reason": "Persistence / transactions",
+      "tier": "HIGH",
+      "signal": "persistence",
+      "line": "@Transactional|@Document\\b|@Indexed\\b|\\.(save|insert|delete\\w*|update\\w*)\\("
+    },
+    {
+      "id": "messaging",
+      "priority": 20,
+      "reason": "Messaging / delivery semantics",
+      "tier": "HIGH",
+      "signal": "messaging",
+      "line": "(?i)@RabbitListener|pubsub|\\b(n?ack)\\(|\\.publish\\(|subscriber|dead.?letter|\\bdlq\\b|redeliver|idempoten"
+    },
+    {
+      "id": "error-handling",
+      "priority": 30,
+      "reason": "Error handling / retries",
+      "tier": "MEDIUM",
+      "signal": "error-handling",
+      "line": "catch\\s*\\(|\\bthrow\\s+new\\b|(?i:\\bretry|backoff)"
+    },
+    {
+      "id": "data-semantics",
+      "priority": 30,
+      "reason": "Data transformation semantics",
+      "tier": "MEDIUM",
+      "signal": "data-semantics",
+      "line": "\\b(BigDecimal|RoundingMode|ZoneId|ZoneOffset|TimeZone|DateTimeFormatter|LocalDate(Time)?|Instant|Charset|Locale|Currency)\\b"
+    }
+  ],
+  "lenses": {
+    "enable": [
+      "correctness-and-security",
+      "reuse-existing",
+      "placement-and-ownership",
+      "minimal-surface",
+      "query-and-schema",
+      "redundant-checks",
+      "behavior-preservation",
+      "nulls-and-edges",
+      "test-quality",
+      "operations-and-rollout",
+      "domain-and-values",
+      "readability"
+    ]
+  }
+}

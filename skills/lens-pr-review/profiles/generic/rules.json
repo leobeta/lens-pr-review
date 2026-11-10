@@ -1,0 +1,99 @@
+[
+  {
+    "rule": "SEC-001",
+    "severity": "blocker",
+    "category": "security",
+    "title": "Possible hard-coded secret",
+    "scope": "secret_scope",
+    "raw": true,
+    "include_comments": true,
+    "guidance": "Load secrets from the environment or a secret manager. Rotate it if it was real.",
+    "pattern": "(?i)\\b(password|passwd|pwd|secret|api[_-]?key|access[_-]?key|client[_-]?secret|private[_-]?key|token)\\b[\\\"']?\\s*[:=]\\s*[\\\"']?(?!\\$\\{|<|\\{\\{|changeme|example|dummy|test)[A-Za-z0-9/+_\\-.]{8,}"
+  },
+  {
+    "rule": "SEC-002",
+    "severity": "blocker",
+    "category": "security",
+    "title": "Private key material committed",
+    "scope": "text",
+    "raw": true,
+    "include_comments": true,
+    "guidance": "Remove the key from the repository and rotate it.",
+    "pattern": "-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----"
+  },
+  {
+    "rule": "SEC-003",
+    "severity": "blocker",
+    "category": "security",
+    "title": "Unsafe deserialisation",
+    "scope": "java_main",
+    "guidance": "Never use Java native deserialisation or Jackson default/class-based typing on untrusted input.",
+    "pattern": "\\bObjectInputStream\\b|enableDefaultTyping|activateDefaultTyping|JsonTypeInfo\\.Id\\.CLASS"
+  },
+  {
+    "rule": "SEC-004",
+    "severity": "major",
+    "category": "security",
+    "title": "Query built by string concatenation",
+    "scope": "java_main",
+    "raw": true,
+    "guidance": "Use parameterised queries; never concatenate input into a query.",
+    "pattern": "(?i)\\\"\\s*(?:select|insert|update|delete)\\b[^\\\"]*\\\"\\s*\\+|new\\s+(?:BasicQuery|Query)\\s*\\(\\s*\\\"[^\\\"]*\\\"\\s*\\+|\\$where"
+  },
+  {
+    "rule": "SEC-005",
+    "severity": "major",
+    "category": "security",
+    "title": "Dynamic expression evaluation (SpEL)",
+    "scope": "java_main",
+    "once_per_file": true,
+    "guidance": "Expression evaluation must stay confined to a few sanctioned classes with a restricted evaluation context.",
+    "pattern": "\\b(?:SpelExpressionParser|StandardEvaluationContext)\\b"
+  },
+  {
+    "rule": "SEC-006",
+    "severity": "major",
+    "category": "security",
+    "title": "TLS / hostname verification disabled",
+    "scope": "java_main",
+    "guidance": "Do not trust all certificates or disable hostname verification.",
+    "pattern": "\\b(?:TrustAllStrategy|NoopHostnameVerifier|InsecureTrustManagerFactory|TrustSelfSignedStrategy)\\b|setHostnameVerifier\\("
+  },
+  {
+    "rule": "SEC-007",
+    "severity": "major",
+    "category": "security",
+    "title": "OS command execution",
+    "scope": "java_main",
+    "guidance": "Avoid shelling out; if unavoidable, never pass user or file-derived input.",
+    "pattern": "Runtime\\.getRuntime\\(\\)\\.exec|\\bnew\\s+ProcessBuilder\\b"
+  },
+  {
+    "rule": "EXC-002",
+    "severity": "major",
+    "category": "reliability",
+    "title": "Exception swallowed (empty catch)",
+    "scope": "java_main",
+    "guidance": "Handle it, translate it, or rethrow. Never swallow silently.",
+    "pattern": "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+  },
+  {
+    "rule": "LOG-001",
+    "severity": "minor",
+    "category": "reliability",
+    "title": "System.out / printStackTrace",
+    "scope": "java_main",
+    "guidance": "Use the project logger.",
+    "pattern": "\\bSystem\\.(?:out|err)\\.print|\\.printStackTrace\\(\\)"
+  },
+  {
+    "rule": "TEST-003",
+    "severity": "major",
+    "category": "tests",
+    "title": "Test disabled",
+    "scope": "java",
+    "raw": true,
+    "guidance": "Do not merge disabled tests; fix or delete them with a reason.",
+    "pattern": "@Disabled\\b|@Ignore\\b"
+  }
+]

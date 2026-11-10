@@ -1,0 +1,149 @@
+[
+  {
+    "rule": "NULL-001",
+    "severity": "blocker",
+    "category": "null-safety",
+    "title": "Method returns null",
+    "scope": "java_main",
+    "guidance": "Return Optional<T> for a single absent value, or an empty collection.",
+    "pattern": "\\breturn\\s+null\\s*;"
+  },
+  {
+    "rule": "NULL-002",
+    "severity": "major",
+    "category": "null-safety",
+    "title": "Imperative Optional unwrapping (isPresent)",
+    "scope": "java_main",
+    "guidance": "Use map / flatMap / filter / orElseGet / orElseThrow / ifPresentOrElse.",
+    "pattern": "\\.isPresent\\(\\)"
+  },
+  {
+    "rule": "NULL-003",
+    "severity": "major",
+    "category": "null-safety",
+    "title": "Optional.orElse(null) reintroduces null",
+    "scope": "java_main",
+    "guidance": "Keep the value inside the Optional pipeline, or use orElseThrow / orElseGet with a real default.",
+    "pattern": "\\.orElse\\(\\s*null\\s*\\)"
+  },
+  {
+    "rule": "NULL-004",
+    "severity": "major",
+    "category": "null-safety",
+    "title": "Manual null comparison",
+    "scope": "java_main",
+    "guidance": "Use Objects.requireNonNull for guards, Optional.ofNullable for absent values.",
+    "pattern": "[!=]=\\s*null\\b|\\bnull\\s*[!=]="
+  },
+  {
+    "rule": "NULL-005",
+    "severity": "major",
+    "category": "null-safety",
+    "title": "Optional used as a field, parameter or record component",
+    "scope": "java_main",
+    "guidance": "Optional is only for return types and local variables.",
+    "pattern": "^\\s*(?:(?:private|protected|public|static|final|volatile|transient)\\s+)+Optional<.*>\\s+\\w+\\s*(?:=.*)?;|[(,]\\s*(?:final\\s+)?(?:@\\w+\\s+)*Optional<[^;{]*?>\\s+\\w+\\s*[,)]|^\\s*(?:final\\s+)?(?:@\\w+\\s+)*Optional<.+>\\s+\\w+\\s*[,)]\\s*(?:\\{|throws|$)"
+  },
+  {
+    "rule": "NULL-006",
+    "severity": "minor",
+    "category": "null-safety",
+    "title": "String.isBlank() instead of a null-safe helper",
+    "scope": "java_main",
+    "guidance": "Use a null-safe helper such as StringUtils.hasText.",
+    "pattern": "\\.isBlank\\(\\)"
+  },
+  {
+    "rule": "BRANCH-001",
+    "severity": "major",
+    "category": "branching",
+    "title": "else-if chain",
+    "scope": "java_main",
+    "guidance": "Consider Strategy / map-based dispatch / polymorphism.",
+    "pattern": "\\belse\\s+if\\b"
+  },
+  {
+    "rule": "BRANCH-002",
+    "severity": "major",
+    "category": "branching",
+    "title": "switch statement",
+    "scope": "java_main",
+    "guidance": "Prefer Strategy or map dispatch. An exhaustive switch over a sealed type is fine.",
+    "pattern": "\\bswitch\\s*\\("
+  },
+  {
+    "rule": "BRANCH-003",
+    "severity": "major",
+    "category": "branching",
+    "title": "instanceof type check",
+    "scope": "java_main",
+    "guidance": "Use polymorphism or a type-keyed registry.",
+    "pattern": "\\binstanceof\\b"
+  },
+  {
+    "rule": "BRANCH-004",
+    "severity": "minor",
+    "category": "branching",
+    "title": "if/else branching",
+    "scope": "java_main",
+    "guidance": "A guard clause, Optional pipeline or Stream filter may read better.",
+    "pattern": "\\}\\s*else\\s*\\{|^\\s*else\\s*\\{"
+  },
+  {
+    "rule": "BRANCH-005",
+    "severity": "minor",
+    "category": "streams",
+    "title": "Imperative loop",
+    "scope": "java_main",
+    "guidance": "Streams may read better than a loop with an accumulator. Ignore for index logic or early exits.",
+    "pattern": "^\\s*(?:for|while)\\s*\\("
+  },
+  {
+    "rule": "DI-001",
+    "severity": "major",
+    "category": "solid-dip",
+    "title": "Field injection",
+    "scope": "java_main",
+    "predicate": "field_injection",
+    "guidance": "Use constructor injection.",
+    "pattern": "@Autowired\\b"
+  },
+  {
+    "rule": "DI-002",
+    "severity": "major",
+    "category": "solid-dip",
+    "title": "Concrete *Impl type injected or declared",
+    "scope": "java_main",
+    "guidance": "Depend on the interface, unless this repository says to use the impl inside its own module.",
+    "pattern": "\\b\\w+Impl\\s+\\w+\\s*[,);=]"
+  },
+  {
+    "rule": "CFG-001",
+    "severity": "minor",
+    "category": "spring",
+    "title": "@ConfigurationProperties bound to a class",
+    "scope": "java_main",
+    "predicate": "annotates_class",
+    "guidance": "Bind it via a record.",
+    "pattern": "@ConfigurationProperties\\b"
+  },
+  {
+    "rule": "CFG-002",
+    "severity": "minor",
+    "category": "spring",
+    "title": "@Value injection",
+    "scope": "java_main",
+    "raw": true,
+    "guidance": "Bind configuration through a @ConfigurationProperties record instead of scattered @Value fields.",
+    "pattern": "@Value\\(\\s*\\\"\\$\\{"
+  },
+  {
+    "rule": "EXC-001",
+    "severity": "minor",
+    "category": "ddd",
+    "title": "Generic exception thrown",
+    "scope": "java_main",
+    "guidance": "Throw a context-specific exception type.",
+    "pattern": "throw\\s+new\\s+(?:RuntimeException|Exception|Throwable)\\s*\\("
+  }
+]

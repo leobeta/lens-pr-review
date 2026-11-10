@@ -1,0 +1,10 @@
+{
+  "name": "lens-pr-review",
+  "version": "0.1.0",
+  "description": "Pull request review that writes a local draft of suggested, human-sounding comments (deterministic scanner + review lenses). Never posts to GitHub and never approves.",
+  "keywords": [
+    "code-review",
+    "pull-request",
+    "review"
+  ]
+}

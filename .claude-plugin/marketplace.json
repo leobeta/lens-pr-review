@@ -1,0 +1,14 @@
+{
+  "name": "lens-tools",
+  "description": "PR review drafts that a human reads before posting anything.",
+  "owner": {
+    "name": "leobetancourtt"
+  },
+  "plugins": [
+    {
+      "name": "lens-pr-review",
+      "source": "./",
+      "description": "PR review draft: deterministic scanner + review lenses, human decides what to post."
+    }
+  ]
+}
