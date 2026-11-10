@@ -2,7 +2,7 @@
   "name": "lens-tools",
   "description": "PR review drafts that a human reads before posting anything.",
   "owner": {
-    "name": "leobetancourtt"
+    "name": "leobeta"
   },
   "plugins": [
     {

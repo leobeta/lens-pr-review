@@ -10,7 +10,10 @@ when you are proposing a new name), a verdict that disagrees with the weights.
 The draft is a suggestion for a human. This script never talks to GitHub.
 
 Usage:
-  check_draft.py draft.md [--head <ref>] [--summary-out summary.json]
+  check_draft.py draft.md [--head <ref>] [--threads threads.json] [--summary-out summary.json]
+
+With --threads (written by threads.py) the "Earlier discussion" section must have one table row per earlier review
+thread that needs a status: the thread id, a valid status, and evidence that cites the fix.
 Standard library only.
 """
 
@@ -40,6 +43,8 @@ IMPERATIVE = re.compile(r"^(remove|change|use|replace|fix|add|rename|delete|move
 HARSH = re.compile(r"\b(wrong|bad|terrible|obviously|clearly|must|always|never|violates?|unacceptable|sloppy)\b", re.I)
 EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿]")
 SYMBOL = re.compile(r"`([A-Za-z_][\w.#]*(?:\(\))?)`")
+STATUSES = ("Addressed", "Partially addressed", "Not addressed", "No longer applicable", "Deferred", "Unclear")
+CITES_FIX = re.compile(r"`[^`]+`|\b[0-9a-f]{7,40}\b")
 COMMON = {"null", "true", "false", "int", "long", "String", "List", "Map", "Set", "Optional", "BigDecimal", "this"}
 
 
@@ -105,6 +110,40 @@ def parse_comments(lines: list[str], errors: list[str]) -> list[dict]:
         if in_quote_block and line.startswith(">"):
             current["quote"].append(line[1:].strip())
     return comments
+
+
+def check_earlier_discussion(lines: list[str] | None, threads: dict, errors: list[str], warnings: list[str]) -> None:
+    needing = {t["id"]: t for t in threads["threads"] if t["needs_status"]}
+    if not needing:
+        return
+    if lines is None:
+        errors.append(f"Missing section '## Earlier discussion': {len(needing)} earlier review thread(s) need a status (see threads.json)")
+        return
+    rows = []
+    for line in lines:
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.strip().startswith("|") else []
+        if len(cells) >= 3 and not set("".join(cells)) <= set("-: "):
+            rows.append(cells)
+    for thread_id, thread in sorted(needing.items()):
+        row = next((cells for cells in rows if re.search(rf"\b{thread_id}\b", cells[0])), None)
+        where = f"{thread['path']}:{thread['line'] or thread['original_line']}"
+        if row is None:
+            errors.append(f"Earlier discussion: no row for thread {thread_id} ({where}). Start the row with the thread id")
+            continue
+        status = next((c for c in row if c.lower() in [x.lower() for x in STATUSES]), None)
+        if status is None:
+            errors.append(f"Earlier discussion: thread {thread_id} has no valid status ({', '.join(STATUSES)})")
+            continue
+        evidence = row[-1]
+        if len(evidence.split()) < 3:
+            errors.append(f"Earlier discussion: thread {thread_id} needs evidence, not just a status")
+        elif status.lower() in ("addressed", "partially addressed") and not CITES_FIX.search(evidence):
+            errors.append(f"Earlier discussion: thread {thread_id} is '{status}' but the evidence cites no fix (a `symbol` or commit sha)")
+        delta = thread["delta"]
+        if status.lower() == "addressed" and delta["available"] and delta["touched"] is False:
+            warnings.append(f"Earlier discussion: thread {thread_id} is Addressed but {thread['path']} did not change since the comment. Is the fix elsewhere?")
+        if status.lower() == "not addressed" and delta["available"] and delta["touched"]:
+            warnings.append(f"Earlier discussion: thread {thread_id} is Not addressed but {thread['path']} changed since the comment. Did you read the delta?")
 
 
 def check_mermaid(text: str, errors: list[str]) -> None:
@@ -182,6 +221,7 @@ def main() -> int:
     parser.add_argument("draft", type=Path)
     parser.add_argument("--head", help="Ref to check anchors and symbols against (the reviewed head)")
     parser.add_argument("--profile", default="auto")
+    parser.add_argument("--threads", type=Path, help="threads.json from threads.py: require a status row per earlier thread")
     parser.add_argument("--summary-out", type=Path, help="Write a summary.json that build_review_map.py --summary understands")
     args = parser.parse_args()
 
@@ -221,6 +261,8 @@ def main() -> int:
     blocking = [c for c in comments if c["weight"] == "blocking-suggested"]
     if verdict in VERDICTS and (verdict == "REQUEST_CHANGES") != bool(blocking):
         warnings.append(f"Verdict {verdict} does not match {len(blocking)} blocking-suggested comment(s)")
+    if args.threads:
+        check_earlier_discussion(sections.get("Earlier discussion"), json.loads(args.threads.read_text(encoding="utf-8")), errors, warnings)
     check_mermaid(text, errors)
 
     if args.summary_out:

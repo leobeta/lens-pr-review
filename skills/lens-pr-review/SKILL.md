@@ -12,8 +12,9 @@ posting, and posts them (or not).
 
 ## Hard rules
 
-1. **Never write to GitHub.** No review, no comment, no status, no label, no `gh pr review`, no `gh api` with POST,
-   PATCH or DELETE, no MCP write tool. Reading (`gh pr view`, `gh api` GET, MCP read tools) is fine.
+1. **Never write to GitHub.** No review, no comment, no reply, no resolving a thread, no status, no label, no `gh pr review`,
+   no `gh api` with POST, PATCH or DELETE, no MCP write tool. Reading (`gh pr view`, `gh api` GET, MCP read tools, and
+   `engine/threads.py`, which only reads) is fine.
 2. **Never approve.** The suggested verdict is `COMMENT` or `REQUEST_CHANGES`, and only a suggestion.
 3. **Never modify the code under review**, never check out the PR branch over the user's work, never push.
 4. **A comment may be `blocking-suggested` only with evidence you verified** (see *Weights*). Without it, it is a question.
@@ -38,8 +39,14 @@ posting, and posts them (or not).
 
 - `git fetch origin <base> --quiet`. The scanner picks the base from the profile (`origin/master`, `origin/main`).
 - **PR**: `git fetch origin pull/<N>/head:pr-<N> --quiet` and use `--head pr-<N>`. Read the title, body, author, head SHA, CI
-  status, and the earlier reviews and inline threads (all read-only). Do not repeat a point already raised. Give each
-  earlier request a status: Addressed, Partially addressed, Not addressed, No longer applicable, Deferred or Unclear, with evidence.
+  status and the author (all read-only). Do not repeat a point already raised.
+- **Earlier threads (PR only)**: collect them with the read-only helper, which also computes what changed in each commented
+  file since the comment:
+  ```bash
+  python3 SKILL_DIR/engine/threads.py --pr <N> --head pr-<N> --out .pr-review/lens/pr-<N>
+  ```
+  It writes `threads.json` (and `thread-deltas/<id>.diff`). Threads started by a human other than the PR author are listed
+  in `needing_status`; each one needs a status in the draft (see step 4b). Bots and the author's own notes do not.
 - If the branch or title has a ticket key, read the ticket for the intent and acceptance criteria when a connector is available.
 - **Self-review** (no PR yet): use `--worktree`, which includes uncommitted changes.
 - Output directory: `.pr-review/lens/pr-<N>/` or `.pr-review/lens/<branch>/`.
@@ -75,6 +82,20 @@ quick sanity pass (do the tests assert behaviour? do the docs match?).
   run or read the tests. A comment that rests on a search you did not make is a guess.
 - Record, per file, what you read, which context you checked, and the checks you made (behaviour, boundary, integration...),
   as `map.json` schema 2 (see `references/review-map.md`), bound to the scan's `revision`.
+### 4b. Earlier requests and their fixes
+
+For every thread in `needing_status`:
+
+1. Read the request and the replies. An author's "done" or "fixed in another commit" is a claim, not evidence.
+2. Read its `thread-deltas/<id>.diff` (what changed in that file between the commented commit and the head), and the file at
+   head. If `delta.available` is false, compare by reading the file at head and say so.
+3. Decide the status: Addressed, Partially addressed, Not addressed, No longer applicable (scope changed), Deferred
+   (a linked follow-up) or Unclear. Never count No longer applicable or Deferred as Addressed.
+4. Cite the fix in the evidence: the changed `symbol` or the commit sha. A status with no evidence is not accepted.
+5. **Review the fix itself** with the lenses, as new code. A fix can answer the comment and break something else. If it did,
+   raise a normal comment anchored to the new line, and mention it in the evidence.
+6. Reviewers' open `CHANGES_REQUESTED` (`open_change_requests`) go in the plain-words summary when they are still unmet.
+
 - **Large PR** (over about 25 HIGH+MEDIUM files or 1500 added production lines): split into batches by module and review
   them in parallel with sub-agents. Give each the absolute paths of the lens playbook and `references/comment-voice.md`,
   its files and its scanner findings, and ask for **candidate findings as JSON** (anchor, lens, evidence, verified-by,
@@ -94,12 +115,13 @@ Follow `references/draft-template.md` exactly. Use a Mermaid diagram only under 
 Put the human review map under *Where to look*:
 
 ```bash
-python3 SKILL_DIR/engine/check_draft.py .pr-review/lens/pr-<N>/draft.md --head pr-<N> --summary-out .pr-review/lens/pr-<N>/summary.json
+python3 SKILL_DIR/engine/check_draft.py .pr-review/lens/pr-<N>/draft.md --head pr-<N> --threads .pr-review/lens/pr-<N>/threads.json --summary-out .pr-review/lens/pr-<N>/summary.json
 python3 SKILL_DIR/engine/build_review_map.py --scan .../scan.json --map .../map.json --summary .../summary.json --links local --output .../map.md
 ```
 
 `check_draft.py` fails on structure, length, rule ids, AI mentions, missing evidence for blockers, diagrams without a
-source line, and anchors that do not exist at head. Fix every error and re-run. Read its warnings: they flag order-like
+source line, anchors that do not exist at head, and (with `--threads`) any earlier thread without a status row and cited
+evidence. Fix every error and re-run. Read its warnings: they flag order-like
 wording and symbols that do not exist at head (fine only for names you are proposing).
 
 ### 7. Reply in chat

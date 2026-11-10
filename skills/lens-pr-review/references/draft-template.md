@@ -38,8 +38,17 @@ Two to four sentences a non-developer could follow: what the PR does and what, i
 Only when a diagram says something the text cannot. See references/mermaid.md. Omit this section otherwise.
 
 ## Earlier discussion
-Only when the PR has earlier review threads. One line per request: status (Addressed, Partially, Not addressed,
-No longer applicable, Deferred, Unclear) and the evidence.
+Only when the PR has earlier review threads. One row per thread that `threads.json` lists in `needing_status`:
+
+| Thread | Request | Status | Evidence |
+|---|---|---|---|
+| `4442421479` | Populate batches in the main query | Addressed | `getBatches` removed; `getList` now selects the batch (commit abc1234) |
+
+- **Thread**: the thread id from `threads.json`, in backticks. `check_draft.py --threads` fails when a thread has no row.
+- **Status**: Addressed, Partially addressed, Not addressed, No longer applicable, Deferred or Unclear.
+- **Evidence**: at least a few words. Addressed and Partially addressed must cite the fix (a `symbol` or a commit sha).
+  The author's reply alone is not evidence; read the delta.
+- If the fix introduced a new problem, say so here and raise it as its own comment on the new line.
 
 ## Dismissed scanner hits
 | Rule | Location | Reason |

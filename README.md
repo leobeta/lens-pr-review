@@ -15,14 +15,14 @@ It combines two things:
 The repository is also a plugin marketplace (`lens-tools`), so it installs straight from GitHub. Inside Claude Code:
 
 ```
-/plugin marketplace add leobetancourtt/lens-pr-review
+/plugin marketplace add leobeta/lens-pr-review
 /plugin install lens-pr-review@lens-tools
 ```
 
 Or from a terminal:
 
 ```
-claude plugin marketplace add leobetancourtt/lens-pr-review
+claude plugin marketplace add leobeta/lens-pr-review
 claude plugin install lens-pr-review@lens-tools
 ```
 
@@ -63,6 +63,10 @@ lenses, which docs to read. Profiles extend each other (`"extends": "generic"`).
 before commenting, how to phrase it, example comments, when it is *not* a finding. `may_block: never` means the lens can
 only produce `discuss`, `minor` or `praise`. `may_block: if-verified` allows `blocking-suggested`, and only with a filled-in
 *Verified by*. A profile can add project facts to a lens with `profiles/<name>/lens-notes/<lens-id>.md`.
+
+**Earlier review threads.** `engine/threads.py` reads (never writes) the PR's existing review threads and, for each, the code
+that changed in that file since the comment. The skill gives every thread a status with evidence, reviews the fix like new
+code, and `check_draft.py --threads` refuses a draft that skips a thread.
 
 **The draft** (`references/draft-template.md`) is checked by `engine/check_draft.py`: structure, comment length,
 no rule ids or AI mentions, evidence required for blockers, diagrams need a source line, anchors and symbols must exist at
